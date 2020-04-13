@@ -11,5 +11,25 @@
   {% endif %}
   <p> you can {{url_string}} <a href='{{url}}'> here</a></p>
 
+  <form method='post' action='/'>
+    <input type="text" name='boardname' placeholder="board name"/>
+    <input type='submit' name='button' value='New board'/>
+  </form>
+
+  Your Boards (You are owner)
+  {%for board in my_boards%}
+  {%if board.owner == user_key%}
+    <li><a href='/viewtaskboard?k={{keys[loop.index-1]}}'>{{board.name}}</a></li>
+  {%endif%}
+  {%endfor%}
+
+  <br/><br/>
+  Other Boards (You are a member)
+  {%for board in my_boards%}
+  {%if board.owner != user_key%}
+    <li>{{board.name}}</li>
+  {%endif%}
+  {%endfor%}
+
 </body>
 </html>
