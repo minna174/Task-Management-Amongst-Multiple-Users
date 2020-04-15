@@ -8,6 +8,7 @@ from user import User
 from taskboard import Taskboard
 from task import Task
 from viewtaskboard import ViewTaskBoard
+from addtask import AddTask
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -22,37 +23,46 @@ class Mainpage(webapp2.RequestHandler):
         url_string=''
         user=users.get_current_user()
         currentUser=None
-        my_boards = []
-        temp = []
-        keys=[]
-        currentUser_key=[]
+        total_boards = []
+        own_boards = []
+        own_board_keys = []
+        member_board_keys = []
+        member_boards = []
+        currentUser_key = None
         if user:
             url=users.create_logout_url(self.request.uri)
             url_string='logout'
-            currentUser_key=ndb.Key('User',user.email())
+            currentUser_key=ndb.Key('User', user.email())
             currentUser=currentUser_key.get()
             if currentUser == None:
                 currentUser= User(id=user.email(), email_a=user.email())
                 currentUser.put()
             else:
-                my_boards = currentUser.taskboards
+                total_boards = currentUser.taskboards
         else:
             url= users.create_login_url(self.request.uri)
             url_string= 'login'
 
-        if my_boards:
-            for board in my_boards:
-                temp.append(board.get())
-                keys.append(board.urlsafe())
-            my_boards = temp
+        if total_boards:
+            for board in total_boards:
+                if board.get().owner.get().email_a == user.email():
+                    own_boards.append(board)
+                    own_board_keys.append(board.urlsafe())
+                else:
+                    member_boards.append(board)
+                    member_board_keys.append(board.urlsafe())
+
 
         template_values= {
             'url': url,
             'url_string': url_string,
             'user': user,
-            'my_boards' : my_boards,
+            'total_boards' : total_boards,
+            'own_boards' : own_boards,
+            'member_boards' : member_boards,
             'user_key' : currentUser_key,
-            'keys' : keys
+            'own_board_keys' : own_board_keys,
+            'member_board_keys' : member_board_keys
         }
 
         template= JINJA_ENVIRONMENT.get_template('mainpage.html')
@@ -70,19 +80,27 @@ class Mainpage(webapp2.RequestHandler):
             button = self.request.get('button')
             if button == 'New board':
                 #creating new board
-                taskboard = Taskboard()
-                taskboard.name = boardname
-                taskboard.owner = currentUser_key
-                key = taskboard.put()
-                currentUser.taskboards.append(key)
-                currentUser.put()
-                self.redirect('/')
+                if len(boardname) > 0:
+                    taskboard = Taskboard()
+                    taskboard.name = boardname
+                    taskboard.owner = currentUser_key
+                    key = taskboard.put()
+                    currentUser.taskboards.append(key)
+                    currentUser.put()
+                    self.redirect('/')
+                else:
+                    template_values= {
+                        'message': 'Taskboard name cannot be empty'
+                    }
+
+                    template= JINJA_ENVIRONMENT.get_template('error.html')
+                    self.response.write(template.render(template_values))
         else:
             template_values= {
-                'message' : 'Please login to create new taskboard'
+                'message': 'Please login to create a new taskboard'
             }
 
             template= JINJA_ENVIRONMENT.get_template('error.html')
             self.response.write(template.render(template_values))
 
-app = webapp2.WSGIApplication([('/', Mainpage), ('/user', User), ('/task', Task), ('/taskboard', Taskboard), ('/viewtaskboard', ViewTaskBoard), ],debug=True)
+app = webapp2.WSGIApplication([('/', Mainpage), ('/User', User), ('/Task', Task), ('/Taskboard', Taskboard), ('/ViewTaskBoard', ViewTaskBoard), ('/AddTask', AddTask), ],debug=True)
