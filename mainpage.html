@@ -16,21 +16,17 @@
     <input type='submit' name='button' value='New board'/>
   </form>
 
- Your Boards (You are owner)
+ Your Boards
   {% if own_boards %}
   {%for board in own_boards%}
     <li><a href='/ViewTaskBoard?k={{own_board_keys[loop.index-1]}}'>{{board.get().name}}</a></li>
   {%endfor%}
   {%endif%}
-
-  <br/><br/>
-  Other Boards (You are a member)
   {% if member_boards %}
   {%for board in member_boards%}
     <li><a href='/ViewTaskBoard?k={{member_board_keys[loop.index-1]}}'>{{board.get().name}}</a></li>
   {%endfor%}
   {%endif%}
-
 
 </body>
 </html>

@@ -6,3 +6,4 @@ class Task(ndb.Model):
 	duedate = ndb.DateProperty()
 	isCompleted = ndb.BooleanProperty()
 	assignee = ndb.KeyProperty(User)
+	completionDateTime = ndb.DateTimeProperty()

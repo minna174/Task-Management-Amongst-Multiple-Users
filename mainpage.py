@@ -9,6 +9,7 @@ from taskboard import Taskboard
 from task import Task
 from viewtaskboard import ViewTaskBoard
 from addtask import AddTask
+from edittask import EditTask
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -103,4 +104,4 @@ class Mainpage(webapp2.RequestHandler):
             template= JINJA_ENVIRONMENT.get_template('error.html')
             self.response.write(template.render(template_values))
 
-app = webapp2.WSGIApplication([('/', Mainpage), ('/User', User), ('/Task', Task), ('/Taskboard', Taskboard), ('/ViewTaskBoard', ViewTaskBoard), ('/AddTask', AddTask), ],debug=True)
+app = webapp2.WSGIApplication([('/', Mainpage), ('/User', User), ('/Task', Task), ('/Taskboard', Taskboard), ('/ViewTaskBoard', ViewTaskBoard), ('/AddTask', AddTask), ('/EditTask', EditTask),],debug=True)

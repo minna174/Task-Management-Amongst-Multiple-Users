@@ -7,6 +7,7 @@ from user import User
 from taskboard import Taskboard
 from task import Task #remove unused
 from google.appengine.ext.db import Model
+import datetime
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -78,3 +79,43 @@ class ViewTaskBoard(webapp2.RequestHandler):
 			}
 			template= JINJA_ENVIRONMENT.get_template('addtask.html')
 			self.response.write(template.render(template_values))
+		elif action == 'Edit task':
+			task_key = self.request.get('task_key')
+			task_key = ndb.Key(urlsafe=task_key)
+			member_users = []
+			for guest in taskboard.guests:
+				member_users.append(guest.get())
+
+			template_values= {
+				'taskboard' : taskboard,
+				'taskboard_key' : taskboard_key.urlsafe(),
+				'user' : user,
+				'task_key' : task_key.urlsafe(),
+				'task' : task_key,
+				'member_users' : member_users
+			}
+			template= JINJA_ENVIRONMENT.get_template('edittask.html')
+			self.response.write(template.render(template_values))
+		elif action == 'Delete task':
+			task_key = self.request.get('task_key')
+			task_key = ndb.Key(urlsafe=task_key)
+			for key in taskboard.tasks:
+				if key == task_key:
+					taskboard.tasks.remove(key)
+					taskboard.put()
+					key.delete()
+			self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())
+		else:
+			#clicked on checkbox to mark completion of task
+			checkboxChecked = self.request.get('checkcompletion')
+			task_key = self.request.get('task_key')
+			task = ndb.Key(urlsafe=task_key).get()
+			if checkboxChecked:
+				task.isCompleted = True
+				task.completionDateTime = datetime.datetime.now()
+				task.put()
+			else:
+				task.isCompleted = False
+				task.completionDateTime = None
+				task.put()
+			self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())

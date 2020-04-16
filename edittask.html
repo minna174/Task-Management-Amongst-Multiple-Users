@@ -1,0 +1,23 @@
+<html>
+<body>
+	<h2>Edit task: {{taskboard.name}}</h2>
+	<form method="post" action="/EditTask">
+		<table cellspacing="6" cellpadding="6">
+			<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/></td></tr>
+			<input type="hidden" value="{{task_key}}" name="task_key"/></td></tr>
+			<tr><td><label>Title: </label><input type="text" required="true" value="{{task.get().title}}" placeholder="Title" name="title" /></td></tr>
+			<tr><td><label>Due Date: </label><input type="date" value="{{task.get().duedate}}" required="true" name="duedate"/></td></tr>
+			<tr><td><label>Task completed? </label><input type="checkbox" name="completed"/></td></tr>
+			<tr><td><label>Do you want to assign this task to a member?</label>
+			<select name="assigned_member">
+				<option value="assignLater">I will assign later</option>
+				{% for guest in member_users %}
+					<option value="{{guest.email_a}}">{{guest.email_a}}</option>
+				{%endfor%}
+			</select>
+			</td></tr>
+			<tr><td><input type="submit" value="Edit" name="submitaction"/></td></tr>
+		</table>
+	</form>
+</body>
+</html>

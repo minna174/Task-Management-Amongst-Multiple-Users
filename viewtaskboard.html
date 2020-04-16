@@ -5,7 +5,7 @@
 	<!-- things to use later if needed-->
 	<input type='hidden' value="{{taskboard_key}}"/>
 
-	<table align=right style="padding-right: 50px;"><tr><td style="text-align:center"><h3>Owner:</h3></td> <td style="text-align:center"><h3>{{taskboard.owner.get().email_a}}</h3></td></td></tr></table>
+	<table align=right style="margin-right: 50px;"><tr><td style="text-align:center"><h3>Owner:</h3></td> <td style="text-align:center"><h3>{{taskboard.owner.get().email_a}}</h3></td></td></tr></table>
 
 	<form method="post" action="/ViewTaskBoard">
 		<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
@@ -32,19 +32,39 @@
 	<table style="width:150;">
 	<tr>
 	{% for task in tasks %}
+	{% if task %}
 		<td>
-			<table>
-				<tr><td>{{task.title}}</td></tr>
-				<tr><td>{{task.duedate}}</td></tr>
-				<tr><td>{{task.isCompleted}}</td></tr>
+			<table style="margin:10px;" border=1>
+				<tr><td align=center><b>{{task.title}}</b></td></tr>
+				<tr><td align=center>{{task.duedate}}</td></tr>
+				<tr><td align=center>
+					<form method='post' id="f" action='/ViewTaskBoard'>
+						<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
+						<input type="hidden" value="{{tasks_keys[loop.index-1]}}" name="task_key"/>
+						{% if task.isCompleted == True %}
+							Completed: <input type="checkbox" checked name='checkcompletion' onchange="this.form.submit()"/>
+							Completed on {{task.completionDateTime}}
+						{% else %}
+							Completed: <input type="checkbox" name='checkcompletion' onchange="this.form.submit()"/>
+						{% endif %}
+					</form>
+				</td></tr>
 				{% if task.assignee.get().email_a %}
-				<tr><td>Assigned to: {{task.assignee.get().email_a}}</td></tr>
+				<tr><td align=center>Assigned to: {{task.assignee.get().email_a}}</td></tr>
 				{% else %}
-				<tr><td>Not assigned</td></tr>
+				<tr><td align=center>Not assigned</td></tr>
 				{% endif %}
-				<tr><td><a href="">Add/Modify assignee</a></td></tr>
+				<tr><td align=center><a href="">Add/Modify assignee</a></td></tr>
+				<tr><td align=center>
+					<form method='post' id="f" action='/ViewTaskBoard'>
+						<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
+						<input type="hidden" value="{{tasks_keys[loop.index-1]}}" name="task_key"/>
+						<input type='submit' value='Edit task' name='action'/><input type='submit' value='Delete task' name='action'/>
+					</form>
+				</td></tr>
 			</table>
 		</td>
+	{% endif %}
 	{% endfor %}
 	</tr>
 	</table>
