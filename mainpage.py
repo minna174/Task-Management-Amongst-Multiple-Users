@@ -1,6 +1,6 @@
 import webapp2
 import os
-import jinja2
+import jinja2 
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext.db import Model
@@ -10,6 +10,7 @@ from task import Task
 from viewtaskboard import ViewTaskBoard
 from addtask import AddTask
 from edittask import EditTask
+from viewmodifyusers import ViewModifyUsers
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -104,4 +105,4 @@ class Mainpage(webapp2.RequestHandler):
             template= JINJA_ENVIRONMENT.get_template('error.html')
             self.response.write(template.render(template_values))
 
-app = webapp2.WSGIApplication([('/', Mainpage), ('/User', User), ('/Task', Task), ('/Taskboard', Taskboard), ('/ViewTaskBoard', ViewTaskBoard), ('/AddTask', AddTask), ('/EditTask', EditTask),],debug=True)
+app = webapp2.WSGIApplication([('/', Mainpage), ('/User', User), ('/Task', Task), ('/Taskboard', Taskboard), ('/ViewTaskBoard', ViewTaskBoard), ('/AddTask', AddTask), ('/EditTask', EditTask), ('/ViewModifyUsers', ViewModifyUsers), ],debug=True)

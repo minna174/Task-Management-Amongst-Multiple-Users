@@ -1,6 +1,6 @@
 import webapp2
 import os
-import jinja2
+import jinja2 
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext.db import Model
@@ -27,11 +27,13 @@ class AddTask(webapp2.RequestHandler):
 		duedate = self.request.get('duedate')
 		isCompleted = self.request.get('completed')
 		assignee_emailaddress = self.request.get('assigned_member')
-		if assignee_emailaddress == 'I will assign later':
+
+		if assignee_emailaddress == 'assignLater':
 			assignee_emailaddress = ''
 			assignee = None
 		else:
 			assignee = ndb.Key(User, assignee_emailaddress)
+
 		if isCompleted:
 			isCompleted = True
 			completionDateTime = datetime.datetime.now()
@@ -41,19 +43,19 @@ class AddTask(webapp2.RequestHandler):
 
 		#check if name is unique
 		if taskboard.tasks:
-		    for task in taskboard.tasks:
-		        task = task.get()
-		        if task:
-		            if task.title == title:
-		                task_exists = True
+			for task in taskboard.tasks:
+				task = task.get()
+				if task:
+					if task.title == title:
+						task_exists = True
 
 		if task_exists == True:
-		    #this title already exists for some task in this taskboard
-		    template_values= {
-		        'message': 'A task with same title exists already. Choose differnt name.'
-		    }
-		    template= JINJA_ENVIRONMENT.get_template('error.html')
-		    self.response.write(template.render(template_values))
+			#this title already exists for some task in this taskboard
+			template_values= {
+			    'message': 'A task with same title exists already. Choose differnt name.'
+			}
+			template= JINJA_ENVIRONMENT.get_template('error.html')
+			self.response.write(template.render(template_values))
 		else:
 			task = Task(
 				title = title,
@@ -68,7 +70,7 @@ class AddTask(webapp2.RequestHandler):
 				self.redirect("/ViewTaskBoard?k=" + taskboard_key.urlsafe())
 			else:
 				template_values= {
-		            'message': 'Some problem occurred, please try again'
-		        }
+			        	'message': 'Some problem occurred, please try again'
+				}
 				template= JINJA_ENVIRONMENT.get_template('error.html')
 				self.response.write(template.render(template_values))

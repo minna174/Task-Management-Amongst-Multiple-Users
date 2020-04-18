@@ -79,6 +79,11 @@ class ViewTaskBoard(webapp2.RequestHandler):
 			}
 			template= JINJA_ENVIRONMENT.get_template('addtask.html')
 			self.response.write(template.render(template_values))
+		elif action == 'Edit board':
+			newtaskboardname = self.request.get('changename')
+			taskboard.name = newtaskboardname
+			taskboard.put()
+			self.redirect("/ViewTaskBoard?k=" + taskboard_key.urlsafe())
 		elif action == 'Edit task':
 			task_key = self.request.get('task_key')
 			task_key = ndb.Key(urlsafe=task_key)
@@ -97,6 +102,7 @@ class ViewTaskBoard(webapp2.RequestHandler):
 			template= JINJA_ENVIRONMENT.get_template('edittask.html')
 			self.response.write(template.render(template_values))
 		elif action == 'Delete task':
+			#delete task from taskboard
 			task_key = self.request.get('task_key')
 			task_key = ndb.Key(urlsafe=task_key)
 			for key in taskboard.tasks:
@@ -105,6 +111,16 @@ class ViewTaskBoard(webapp2.RequestHandler):
 					taskboard.put()
 					key.delete()
 			self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())
+		elif action == 'View and modify users':
+			if user.email() == taskboard.owner.get().email_a:
+				template_values= {
+					'owner' : taskboard.owner,
+					'guests' : taskboard.guests,
+					'taskboard' : taskboard,
+					'taskboard_key' : taskboard_key.urlsafe()
+				}
+				template= JINJA_ENVIRONMENT.get_template('viewmodifyusers.html')
+				self.response.write(template.render(template_values))
 		else:
 			#clicked on checkbox to mark completion of task
 			checkboxChecked = self.request.get('checkcompletion')

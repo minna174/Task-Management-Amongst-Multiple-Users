@@ -1,15 +1,17 @@
-<html>
+<html> 
 <body>
-	<h2>{{taskboard.name}}</h2>
+	<form method="post" action="/ViewTaskBoard">
+	<input type="text" style="font-size:25; text-align:center;" value="{{taskboard.name}}" name="changename"/><br/><br/>
 
 	<!-- things to use later if needed-->
 	<input type='hidden' value="{{taskboard_key}}"/>
 
 	<table align=right style="margin-right: 50px;"><tr><td style="text-align:center"><h3>Owner:</h3></td> <td style="text-align:center"><h3>{{taskboard.owner.get().email_a}}</h3></td></td></tr></table>
 
-	<form method="post" action="/ViewTaskBoard">
+
 		<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
 		<input type="submit" value="Add Task" name="action"/>
+		<input type="submit" value="Edit board" name="action"/>
 	</form>
 
 	{% if taskboard.owner.get().email_a == user.email() %}
@@ -21,8 +23,10 @@
 						<option value="{{key.email_a}}">{{key.email_a}}</option>
 					{%endfor%}
 				</select>
-				<input type="submit" value="Invite" name="action"/>
+				<input type="submit" value="Invite" name="action"/><br/>
+				<input type="submit" name="action" value="View and modify users"/>
 		</form>
+
 	{% else %}
 	<i>Login as owner to invite users to this board</i>
 	{% endif %}
@@ -34,7 +38,11 @@
 	{% for task in tasks %}
 	{% if task %}
 		<td>
+			{% if task.assignee and task.assignee.get().email_a %}
 			<table style="margin:10px;" border=1>
+			{% else %}
+			<table style="margin:10px;" border=1 bgcolor="#FF6666">
+			{% endif %}
 				<tr><td align=center><b>{{task.title}}</b></td></tr>
 				<tr><td align=center>{{task.duedate}}</td></tr>
 				<tr><td align=center>
@@ -49,12 +57,12 @@
 						{% endif %}
 					</form>
 				</td></tr>
-				{% if task.assignee.get().email_a %}
-				<tr><td align=center>Assigned to: {{task.assignee.get().email_a}}</td></tr>
+				{% if task.assignee and task.assignee.get().email_a %}
+					<tr><td align=center>Assigned to: {{task.assignee.get().email_a}}</td></tr>
 				{% else %}
-				<tr><td align=center>Not assigned</td></tr>
+					<tr><td align=center>Not assigned</td></tr>
 				{% endif %}
-				<tr><td align=center><a href="">Add/Modify assignee</a></td></tr>
+				<!-- <tr><td align=center><a href="">Add/Modify assignee</a></td></tr> -->
 				<tr><td align=center>
 					<form method='post' id="f" action='/ViewTaskBoard'>
 						<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>

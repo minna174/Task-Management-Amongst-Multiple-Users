@@ -1,7 +1,7 @@
 import webapp2
 import os
 import jinja2
-from google.appengine.api import users
+from google.appengine.api import users 
 from google.appengine.ext import ndb
 from google.appengine.ext.db import Model
 from user import User
@@ -17,7 +17,6 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 )
 
 class EditTask(webapp2.RequestHandler):
-
 	def post(self):
 		action = self.request.get('submitaction')
 		task_key = self.request.get('task_key')
