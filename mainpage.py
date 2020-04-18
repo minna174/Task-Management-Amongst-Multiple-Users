@@ -1,6 +1,6 @@
 import webapp2
 import os
-import jinja2 
+import jinja2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext.db import Model

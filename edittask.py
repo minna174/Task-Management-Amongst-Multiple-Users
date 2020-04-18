@@ -1,7 +1,7 @@
 import webapp2
 import os
 import jinja2
-from google.appengine.api import users 
+from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext.db import Model
 from user import User
@@ -20,12 +20,11 @@ class EditTask(webapp2.RequestHandler):
 	def post(self):
 		action = self.request.get('submitaction')
 		task_key = self.request.get('task_key')
+		taskboard_key = self.request.get('taskboard_key')
+		taskboard_key = ndb.Key(urlsafe=taskboard_key)
+		taskboard = taskboard_key.get()
 
 		if action == 'Edit':
-			taskboard_key = self.request.get('taskboard_key')
-			taskboard_key = ndb.Key(urlsafe=taskboard_key)
-			taskboard = taskboard_key.get()
-
 			title = self.request.get('title')
 			duedate = self.request.get('duedate')
 			isCompleted = self.request.get('completed')
@@ -67,3 +66,5 @@ class EditTask(webapp2.RequestHandler):
 	            }
 				template= JINJA_ENVIRONMENT.get_template('error.html')
 				self.response.write(template.render(template_values))
+		elif action == "Back":
+			self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())

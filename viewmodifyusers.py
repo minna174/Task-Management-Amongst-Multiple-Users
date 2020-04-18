@@ -44,21 +44,6 @@ class ViewModifyUsers(webapp2.RequestHandler):
 				guests_.remove(guest)
 				res = res + ':four'
 
-		#QWHGERE IS guests_assigned???????????
-		# for guest in guests_assigned_:
-		# 	if guest.get().email_a == deluser.email_a:
-		# 		user_taskboards = guest.get().taskboards
-		# 		for taskboard in user_taskboards:
-		# 			if taskboard == taskboard_key:
-		# 				taskboard.delete()
-		# 				guest.put()
-		# 			else:
-		# 				res = res + ':five'
-		# 		guest.delete()
-		# 		taskboard.guests_assigned.get().put()
-		# 	else:
-		# 		res = res + ':six'
-
 		#if any of the task in tasks property of the taskboard have assignee prooperty as 'deluser', modify the task: set it as unassigned and highlight red
 		if tasks_:
 			for task in tasks_:

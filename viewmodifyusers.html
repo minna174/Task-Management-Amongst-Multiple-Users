@@ -1,9 +1,12 @@
-<html> 
+<html>
 <body>
 	<h3>Click on any user to remove from: {{taskboard.name}}</h3>
 	<li>{{owner.get().email_a}} (Owner)</li>
 	{% for guest in guests %}
 		<li><a href='/ViewModifyUsers?taskboard_key={{taskboard_key}}&deluser={{guests[loop.index-1].urlsafe()}}'>{{guest.get().email_a}}</a></li>
 	{% endfor %}
+
+	<br/><br/>
+	<a href='/'>Back</a>
 </body>
 </html>

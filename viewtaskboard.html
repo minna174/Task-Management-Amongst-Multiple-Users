@@ -1,4 +1,4 @@
-<html> 
+<html>
 <body>
 	<form method="post" action="/ViewTaskBoard">
 	<input type="text" style="font-size:25; text-align:center;" value="{{taskboard.name}}" name="changename"/><br/><br/>
@@ -12,21 +12,31 @@
 		<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
 		<input type="submit" value="Add Task" name="action"/>
 		<input type="submit" value="Edit board" name="action"/>
+		<input type="submit" value="Back" name="action"/>
 	</form>
 
+	Total tasks: {{count_activetasks + count_completedtasks}}<br/>
+	Active tasks: {{count_activetasks}}<br/>
+	Completed tasks: {{count_completedtasks}}<br/>
+	Completed today: {{count_completed_today}}<br/><br/>
+
 	{% if taskboard.owner.get().email_a == user.email() %}
+	{% if users_keys %}
 		Invite users to this taskboard
 		<form method="post" action="/ViewTaskBoard">
 			<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
 				<select name="user_keys_select">
-					{%for key in users_keys%}
-						<option value="{{key.email_a}}">{{key.email_a}}</option>
+					<option value="chooseamemberuser">Choose a member user</option>
+					{%for _user in users_keys%}
+						<option value="{{_user.email_a}}">{{_user.email_a}}</option>
 					{%endfor%}
 				</select>
 				<input type="submit" value="Invite" name="action"/><br/>
 				<input type="submit" name="action" value="View and modify users"/>
 		</form>
-
+	{% else %}
+	No users to invite
+	{% endif %}
 	{% else %}
 	<i>Login as owner to invite users to this board</i>
 	{% endif %}
@@ -50,10 +60,10 @@
 						<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
 						<input type="hidden" value="{{tasks_keys[loop.index-1]}}" name="task_key"/>
 						{% if task.isCompleted == True %}
-							Completed: <input type="checkbox" checked name='checkcompletion' onchange="this.form.submit()"/>
+							Finished: <input type="checkbox" checked name='checkcompletion' onchange="this.form.submit()"/>
 							Completed on {{task.completionDateTime}}
 						{% else %}
-							Completed: <input type="checkbox" name='checkcompletion' onchange="this.form.submit()"/>
+							Click to complete: <input type="checkbox" name='checkcompletion' onchange="this.form.submit()"/>
 						{% endif %}
 					</form>
 				</td></tr>

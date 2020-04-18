@@ -1,4 +1,4 @@
-<html> 
+<html>
 <body>
 	<h2>Add new task to: {{taskboard.name}}</h2>
 	<form method="post" action="/AddTask">
@@ -6,7 +6,6 @@
 			<tr><td><input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/></td></tr>
 			<tr><td><label>Title: </label><input type="text" required="true" placeholder="Title" name="title" /></td></tr>
 			<tr><td><label>Due Date: </label><input type="date" required="true" name="duedate"/></td></tr>
-			<tr><td><label>Task completed? </label><input type="checkbox" name="completed"/></td></tr>
 			<tr><td><label>Do you want to assign this task to a member?</label>
 			<select name="assigned_member">
 				<option value="assignLater">I will assign later</option>

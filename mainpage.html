@@ -1,4 +1,4 @@
-<html>  
+<html>
 <head>
   <meta charset="utf-8"/>
   <title>A2</title>
@@ -16,10 +16,10 @@
     <input type='submit' name='button' value='New board'/>
   </form>
 
- Your Boards
   {% if own_boards %}
+  Your Boards
   {%for board in own_boards%}
-    <li><a href='/ViewTaskBoard?k={{own_board_keys[loop.index-1]}}'>{{board.get().name}}</a></li>
+    <li><a href='/ViewTaskBoard?k={{own_board_keys[loop.index-1]}}'>{{board.get().name}}</a> (Created by you)</li>
   {%endfor%}
   {%endif%}
   {% if member_boards %}
