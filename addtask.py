@@ -35,35 +35,52 @@ class AddTask(webapp2.RequestHandler):
 		else:
 			assignee = ndb.Key(User, assignee_emailaddress)
 
-		#check if name is unique
-		if taskboard.tasks:
-			for task in taskboard.tasks:
-			    task = task.get()
-			    if task:
-			        if task.title == title:
-			            task_exists = True
-
-		if task_exists == True:
+		#check if duedate is before today
+		if datetime.datetime.strptime(duedate, "%Y-%m-%d").date() < datetime.datetime.today().date():
 			template_values= {
-				'message': 'A task with same title exists already. Choose differnt name.'
+				'message': 'Please select a date greater than or equal to today',
+				'path' : '/ViewTaskBoard?k=' + taskboard_key.urlsafe()
 			}
 			template= JINJA_ENVIRONMENT.get_template('error.html')
 			self.response.write(template.render(template_values))
 		else:
-			task = Task(
-				title = title,
-				duedate = datetime.datetime(int(duedate.split("-")[0]), int(duedate.split("-")[1]), int(duedate.split("-")[2])),
-				isCompleted = isCompleted,
-				assignee = assignee,
-				completionDateTime = completionDateTime)
-			if task:
-				task_key = task.put()
-				taskboard.tasks.append(task_key)
-				taskboard.put()
-				self.redirect("/ViewTaskBoard?k=" + taskboard_key.urlsafe())
+			if len(title) > 0:
+				#check if name is unique
+				if taskboard.tasks:
+					for task in taskboard.tasks:
+					    task = task.get()
+					    if task:
+					        if task.title == title:
+					            task_exists = True
+
+				if task_exists == True:
+					template_values= {
+						'message': 'A task with same title exists already. Choose differnt name.'
+					}
+					template= JINJA_ENVIRONMENT.get_template('error.html')
+					self.response.write(template.render(template_values))
+				else:
+					task = Task(
+						title = title,
+						duedate = datetime.datetime(int(duedate.split("-")[0]), int(duedate.split("-")[1]), int(duedate.split("-")[2])),
+						isCompleted = isCompleted,
+						assignee = assignee,
+						completionDateTime = completionDateTime)
+					if task:
+						task_key = task.put()
+						taskboard.tasks.append(task_key)
+						taskboard.put()
+						self.redirect("/ViewTaskBoard?k=" + taskboard_key.urlsafe())
+					else:
+						template_values= {
+					        'message': 'Some problem occurred, please try again'
+					    }
+						template= JINJA_ENVIRONMENT.get_template('error.html')
+						self.response.write(template.render(template_values))
 			else:
 				template_values= {
-			        'message': 'Some problem occurred, please try again'
-			    }
+					'message': 'Title cannot be empty',
+					'path' : '/ViewTaskBoard?k=' + taskboard_key.urlsafe()
+				}
 				template= JINJA_ENVIRONMENT.get_template('error.html')
 				self.response.write(template.render(template_values))

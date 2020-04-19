@@ -23,13 +23,15 @@ class EditTask(webapp2.RequestHandler):
 		taskboard_key = self.request.get('taskboard_key')
 		taskboard_key = ndb.Key(urlsafe=taskboard_key)
 		taskboard = taskboard_key.get()
+		task = ndb.Key(urlsafe=task_key).get()
+		canProceed = False
 
 		if action == 'Edit':
-			title = self.request.get('title')
+			title = self.request.get('title').strip()
 			duedate = self.request.get('duedate')
 			isCompleted = self.request.get('completed')
 			assignee_emailaddress = self.request.get('assigned_member')
-			if assignee_emailaddress == 'I will assign later':
+			if assignee_emailaddress == 'assignLater':
 				assignee_emailaddress = ''
 				assignee = None
 			else:
@@ -39,32 +41,51 @@ class EditTask(webapp2.RequestHandler):
 			else:
 				isCompleted = False
 
-			#check if name is unique
-			if taskboard.tasks:
-				for task in taskboard.tasks:
-					task = task.get()
-					if task.title == title:
-						#this title already exists for some task in this taskboard
+			if ((task.duedate != duedate) and (datetime.datetime.strptime(duedate, "%Y-%m-%d").date() < datetime.datetime.today().date())):
+				template_values= {
+					'message': 'Please select a date greater than or equal to today',
+					'path' : '/ViewTaskBoard?k=' + taskboard_key.urlsafe()
+				}
+				template= JINJA_ENVIRONMENT.get_template('error.html')
+				self.response.write(template.render(template_values))
+			else:
+				if len(title) > 0:
+					#check if name is unique
+					if taskboard.tasks:
+						for t in taskboard.tasks:
+							t = t.get()
+							if t.title == title:
+								#this title already exists for some task in this taskboard
+								template_values= {
+					                'message': 'A task with same title exists already. Choose differnt name.'
+					            }
+								template= JINJA_ENVIRONMENT.get_template('error.html')
+								self.response.write(template.render(template_values))
+
+					#add to datastore
+					if task:
+						task.title = title
+						task.duedate = datetime.datetime(int(duedate.split("-")[0]), int(duedate.split("-")[1]), int(duedate.split("-")[2]))
+						task.isCompleted = isCompleted
+						task.assignee = assignee
+						if isCompleted == True:
+							task.completionDateTime = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+						else:
+							task.completionDateTime = None
+						task.put()
+						self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())
+					else:
 						template_values= {
-			                'message': 'A task with same title exists already. Choose differnt name.'
+			                'message': 'Some problem occurred, please try again'
 			            }
 						template= JINJA_ENVIRONMENT.get_template('error.html')
 						self.response.write(template.render(template_values))
-
-			#add to datastore
-			task = ndb.Key(urlsafe=task_key).get()
-			if task:
-				task.title = title
-				task.duedate = datetime.datetime(int(duedate.split("-")[0]), int(duedate.split("-")[1]), int(duedate.split("-")[2]))
-				task.isCompleted = isCompleted
-				task.assignee = assignee
-				task.put()
-				self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())
-			else:
-				template_values= {
-	                'message': 'Some problem occurred, please try again'
-	            }
-				template= JINJA_ENVIRONMENT.get_template('error.html')
-				self.response.write(template.render(template_values))
+				else:
+					template_values= {
+						'message': 'Title cannot be empty',
+						'path' : '/ViewTaskBoard?k=' + taskboard_key.urlsafe()
+					}
+					template= JINJA_ENVIRONMENT.get_template('error.html')
+					self.response.write(template.render(template_values))
 		elif action == "Back":
 			self.redirect('/ViewTaskBoard?k=' + taskboard_key.urlsafe())

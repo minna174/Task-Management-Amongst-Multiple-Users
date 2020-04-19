@@ -7,12 +7,30 @@
 			<input type="hidden" value="{{task_key}}" name="task_key"/></td></tr>
 			<tr><td><label>Title: </label><input type="text" required="true" value="{{task.get().title}}" placeholder="Title" name="title" /></td></tr>
 			<tr><td><label>Due Date: </label><input type="date" value="{{task.get().duedate}}" required="true" name="duedate"/></td></tr>
-			<tr><td><label>Task completed? </label><input type="checkbox" name="completed"/></td></tr>
+			<tr><td><label>Task completed? </label>
+				{% if task.get().isCompleted %}
+					<input type="checkbox" checked name="completed"/>
+				{% else %}
+					<input type="checkbox" name="completed"/>
+				{% endif %}
+			</td></tr>
 			<tr><td><label>Do you want to assign this task to a member?</label>
 			<select name="assigned_member">
+				{% if task.get().assignee == None %}
 				<option value="assignLater">I will assign later</option>
+				{% else %}
+				<option value="{{task.get().assignee.get().email_a}}">{{task.get().assignee.get().email_a}}</option>
+				<option value="assignLater">I will assign later</option>
+				{% endif %}
+
 				{% for guest in member_users %}
+					{% if task.get().assignee %}
+					{% if task.get().assignee.get().email_a != guest.email_a %}
+						<option value="{{guest.email_a}}">{{guest.email_a}}</option>
+					{% endif %}
+					{% else %}
 					<option value="{{guest.email_a}}">{{guest.email_a}}</option>
+					{% endif %}
 				{%endfor%}
 			</select>
 			</td></tr>

@@ -2,7 +2,10 @@
 <body>
 {{message}}
 <br/>
-<a href='/'>Back</a>
-
+<a href='/'>Back to home</a>
+<br/>
+{% if path %}
+<a href='{{path}}'>Go to previous page</a>
+{% endif %}
 </body>
 </html>

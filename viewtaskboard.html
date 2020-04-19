@@ -6,12 +6,15 @@
 	<!-- things to use later if needed-->
 	<input type='hidden' value="{{taskboard_key}}"/>
 
-	<table align=right style="margin-right: 50px;"><tr><td style="text-align:center"><h3>Owner:</h3></td> <td style="text-align:center"><h3>{{taskboard.owner.get().email_a}}</h3></td></td></tr></table>
+	<table align=right style="margin-right: 50px;"><tr><td style="text-align:center"><h3>Owner:</h3></td> <td style="text-align:center"><h3>{{taskboard.owner.get().email_a}}</h3></td></tr></table>
 
 
 		<input type="hidden" value="{{taskboard_key}}" name="taskboard_key"/>
 		<input type="submit" value="Add Task" name="action"/>
 		<input type="submit" value="Edit board" name="action"/>
+		{% if taskboard.owner.get().email_a == user.email() %}
+			<input type="submit" value="Remove this board" name="action"/>
+		{% endif %}
 		<input type="submit" value="Back" name="action"/>
 	</form>
 

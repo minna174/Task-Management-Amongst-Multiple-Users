@@ -5,7 +5,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from user import User
 from taskboard import Taskboard
-from task import Task #remove unused
+from task import Task
 from google.appengine.ext.db import Model
 import datetime
 

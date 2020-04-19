@@ -5,7 +5,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from user import User
 from taskboard import Taskboard
-from task import Task #remove unused
+from task import Task
 from google.appengine.ext.db import Model
 import datetime
 
@@ -41,8 +41,10 @@ class ViewTaskBoard(webapp2.RequestHandler):
 					tasks_keys.append(task.urlsafe())
 					if task.get().isCompleted == True:
 						count_completedtasks = count_completedtasks + 1
-						if task.get().completionDateTime.date() == datetime.datetime.today().date():
-							count_completed_today = count_completed_today + 1
+						if task.get().completionDateTime:
+							# if datetime.datetime.strptime(task.get().completionDateTime, "%Y-%m-%d").date() == datetime.datetime.today().date():
+							if task.get().completionDateTime.date() == datetime.datetime.today().date():
+								count_completed_today = count_completed_today + 1
 					else:
 						count_activetasks = count_activetasks + 1
 
@@ -118,10 +120,18 @@ class ViewTaskBoard(webapp2.RequestHandler):
 			template= JINJA_ENVIRONMENT.get_template('addtask.html')
 			self.response.write(template.render(template_values))
 		elif action == 'Edit board':
-			newtaskboardname = self.request.get('changename')
-			taskboard.name = newtaskboardname
-			taskboard.put()
-			self.redirect("/ViewTaskBoard?k=" + taskboard_key.urlsafe())
+			newtaskboardname = self.request.get('changename').strip()
+			if len(newtaskboardname) > 0:
+				taskboard.name = newtaskboardname
+				taskboard.put()
+				self.redirect("/ViewTaskBoard?k=" + taskboard_key.urlsafe())
+			else:
+				template_values= {
+					'message': 'Taskboard name should not be empty',
+					'path' : '/ViewTaskBoard?k=' + taskboard_key.urlsafe()
+				}
+				template= JINJA_ENVIRONMENT.get_template('error.html')
+				self.response.write(template.render(template_values))
 		elif action == 'Edit task':
 			task_key = self.request.get('task_key')
 			task_key = ndb.Key(urlsafe=task_key)
@@ -161,6 +171,19 @@ class ViewTaskBoard(webapp2.RequestHandler):
 				}
 				template= JINJA_ENVIRONMENT.get_template('viewmodifyusers.html')
 				self.response.write(template.render(template_values))
+		elif action == "Remove this board":
+			#Remove this board only if the conditions are met: taskboard.guests and taskboard.tasks should be empty
+			if len(taskboard.tasks) > 0 or len(taskboard.guests) > 0:
+				template_values= {
+					'message': 'The taskboard should be made empty before removing. Delete all users and tasks and try again.'
+				}
+				template= JINJA_ENVIRONMENT.get_template('error.html')
+				self.response.write(template.render(template_values))
+			else:
+				taskboard.owner.get().taskboards.remove(taskboard_key)
+				taskboard.owner.get().put()
+				taskboard_key.delete()
+				self.redirect('/')
 		elif action == "Back":
 			self.redirect('/')
 		else:
@@ -170,7 +193,7 @@ class ViewTaskBoard(webapp2.RequestHandler):
 			task = ndb.Key(urlsafe=task_key).get()
 			if checkboxChecked:
 				task.isCompleted = True
-				task.completionDateTime = datetime.datetime.utcnow()
+				task.completionDateTime = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
 				task.put()
 			else:
 				task.isCompleted = False
